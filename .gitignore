@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Scratch / debug scripts (not needed in repo)
+test.js
+test_api.js
+test_api2.js
+test_api3.js
+test_quota.js
+test_quota2.js
+test_quota3.js
+test_quota4.js
+run.js
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/

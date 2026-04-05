@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Antigravity Tales ✨ AI Storyteller for Kids</title>
+  <meta name="description"
+    content="Antigravity Tales — a magical AI storyteller for kids aged 5–10. Type a prompt, get a story, a picture, and have it read aloud!" />
+
+  <!-- Tailwind CSS CDN -->
+  <script>
+    window.addEventListener('error', function (event) {
+      document.body.innerHTML += '<div style="background:red; color:white; padding:20px; font-size:16px; margin:20px; position:absolute; z-index:99999;"><b>JS Error:</b> ' + event.message + '<br><b>Source:</b> ' + event.filename + ':' + event.lineno + '</div>';
+    });
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap"
+    rel="stylesheet" />
+
+  <!-- React + Babel CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            nunito: ['Nunito', 'sans-serif'],
+            fredoka: ['Fredoka One', 'cursive'],
+          },
+          colors: {
+            candy: {
+              purple: '#a855f7',
+              violet: '#8b5cf6',
+              blue: '#60a5fa',
+              pink: '#f472b6',
+              yellow: '#fbbf24',
+              mint: '#34d399',
+            }
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-12px)' },
+            },
+            shimmer: {
+              '0%': { backgroundPosition: '-200% 0' },
+              '100%': { backgroundPosition: '200% 0' },
+            },
+            pop: {
+              '0%': { transform: 'scale(0.8)', opacity: '0' },
+              '70%': { transform: 'scale(1.05)' },
+              '100%': { transform: 'scale(1)', opacity: '1' },
+            },
+            wiggle: {
+              '0%, 100%': { transform: 'rotate(-3deg)' },
+              '50%': { transform: 'rotate(3deg)' },
+            },
+            spin: {
+              from: { transform: 'rotate(0deg)' },
+              to: { transform: 'rotate(360deg)' },
+            },
+            twinkle: {
+              '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+              '50%': { opacity: '0.3', transform: 'scale(0.7)' },
+            },
+            gradientShift: {
+              '0%': { backgroundPosition: '0% 50%' },
+              '50%': { backgroundPosition: '100% 50%' },
+              '100%': { backgroundPosition: '0% 50%' },
+            }
+          },
+          animation: {
+            float: 'float 4s ease-in-out infinite',
+            shimmer: 'shimmer 2s linear infinite',
+            pop: 'pop 0.4s ease-out forwards',
+            wiggle: 'wiggle 0.5s ease-in-out infinite',
+            spin: 'spin 1s linear infinite',
+            twinkle: 'twinkle 2s ease-in-out infinite',
+            gradientShift: 'gradientShift 6s ease infinite',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Nunito', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #fdfbff 0%, #ede9fe 40%, #dbeafe 80%, #fce7f3 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 10s ease infinite;
+      overflow-x: hidden;
+    }
+
+    @keyframes gradientShift {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    /* Floating stars */
+    .star {
+      position: fixed;
+      pointer-events: none;
+      z-index: 0;
+      font-size: 1.2rem;
+      animation: twinkle 2s ease-in-out infinite;
+    }
+
+    .prose-story {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.15rem;
+      line-height: 2;
+      color: #4c1d95;
+      white-space: pre-wrap;
+    }
+
+    .glassmorphism {
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .btn-magic {
+      background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 30%, #3b82f6 70%, #06b6d4 100%);
+      background-size: 200% 200%;
+      animation: gradientShift 3s ease infinite;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-magic:hover:not(:disabled) {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 12px 35px rgba(139, 92, 246, 0.5);
+    }
+
+    .btn-magic:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    .btn-narrate {
+      background: linear-gradient(135deg, #f472b6 0%, #ec4899 50%, #db2777 100%);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-narrate:hover:not(:disabled) {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 8px 25px rgba(244, 114, 182, 0.5);
+    }
+
+    .btn-stop {
+      background: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-stop:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(239, 68, 68, 0.45);
+    }
+
+    textarea:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.35);
+    }
+
+    .story-card {
+      animation: pop 0.5s ease-out forwards;
+    }
+
+    .loading-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: white;
+      margin: 0 3px;
+      animation: bounce 1.2s ease-in-out infinite;
+    }
+
+    .loading-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .loading-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      80%,
+      100% {
+        transform: scale(0);
+        opacity: 0.5;
+      }
+
+      40% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .image-frame {
+      border-radius: 1.5rem;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(139, 92, 246, 0.2);
+    }
+
+    .moral-box {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border-left: 5px solid #f59e0b;
+      border-radius: 1rem;
+      padding: 1rem 1.25rem;
+      margin-top: 1rem;
+    }
+
+    .page-title-glow {
+      text-shadow: 0 0 40px rgba(168, 85, 247, 0.4), 0 0 80px rgba(99, 102, 241, 0.2);
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #ede9fe;
+      border-radius: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #a78bfa;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Floating decorative stars -->
+  <div id="stars-container"></div>
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useRef, useEffect, useCallback } = React;
+
+    // ─── CONFIGURATION ──────────────────────────────────────
+    const API_KEY = "AIzaSyD52F8Qf2E50e9u7SIVt7Vx2cQ1U-DumME"; // 🔑 Replace with your Gemini API key
+    const GEMINI_TEXT_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${API_KEY}`;
+
+    // System instruction for story generation
+    const STORY_SYSTEM = `You are a friendly, whimsical storyteller for children aged 5–10. 
+Your stories are magical, joyful, and easy to understand.
+Always keep stories under 200 words.
+Use simple, vivid language with fun sounds and descriptions.
+End EVERY story with a clear moral lesson on its own line starting exactly with: "🌟 Moral: "
+Use emojis sparingly to add fun.`;
+
+    // ─── FLOATING STARS ─────────────────────────────────────
+    (() => {
+      const container = document.getElementById('stars-container');
+      if (!container) return;
+      const emojis = ['⭐', '🌟', '✨', '💫', '🌙', '🪐', '🌈', '🦄', '🍭', '🌺'];
+      for (let i = 0; i < 18; i++) {
+        const el = document.createElement('div');
+        el.className = 'star';
+        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        el.style.top = `${Math.random() * 100}vh`;
+        el.style.left = `${Math.random() * 100}vw`;
+        el.style.animationDelay = `${Math.random() * 3}s`;
+        el.style.animationDuration = `${2 + Math.random() * 3}s`;
+        el.style.opacity = '0.2';
+        el.style.fontSize = `${0.7 + Math.random() * 1.2}rem`;
+        container.appendChild(el);
+      }
+    })();
+
+    // ─── EXAMPLE PROMPTS ────────────────────────────────────
+    const EXAMPLE_PROMPTS = [
+      "A tiny dragon who is afraid of fire 🐉",
+      "A robot who only eats broccoli 🥦🤖",
+      "A princess who loves math more than magic 👑",
+      "A cloud that wants to become a rainbow 🌈",
+      "A dinosaur who discovered a time machine 🦕",
+    ];
+
+    // ─── MAIN APP ───────────────────────────────────────────
+    function App() {
+      const [prompt, setPrompt] = useState('');
+      const [story, setStory] = useState('');
+      const [imageSrc, setImageSrc] = useState('');
+      const [imagePrompt, setImagePrompt] = useState('');
+      const [loading, setLoading] = useState(false);
+      const [loadingPhase, setLoadingPhase] = useState('');
+      const [error, setError] = useState('');
+      const [speaking, setSpeaking] = useState(false);
+      const [voiceReady, setVoiceReady] = useState(false);
+      const utteranceRef = useRef(null);
+
+      // Load voices
+      useEffect(() => {
+        const load = () => {
+          const voices = window.speechSynthesis.getVoices();
+          setVoiceReady(voices.length > 0);
+        };
+        load();
+        window.speechSynthesis.onvoiceschanged = load;
+        return () => { window.speechSynthesis.onvoiceschanged = null; };
+      }, []);
+
+      // Cleanup speech on unmount
+      useEffect(() => {
+        return () => { window.speechSynthesis.cancel(); };
+      }, []);
+
+      // ── Generate Story ───────────────────────────────────
+      const handleGenerate = useCallback(async () => {
+        if (!prompt.trim()) {
+          setError("✏️ Please type a story idea first!");
+          return;
+        }
+        if (API_KEY === "YOUR_GEMINI_API_KEY_HERE") {
+          setError("🔑 Please add your Gemini API key in the API_KEY constant!");
+          return;
+        }
+
+        setLoading(true);
+        setError('');
+        setStory('');
+        setImageSrc('');
+        setImagePrompt('');
+        window.speechSynthesis.cancel();
+        setSpeaking(false);
+
+        try {
+          // ── 1. Generate Story ──────────────────────────
+          setLoadingPhase('📖 Crafting your story...');
+          const storyRes = await fetch(GEMINI_TEXT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{
+                role: 'user',
+                parts: [{ text: `${STORY_SYSTEM}\n\nWrite a short, magical story about: ${prompt}` }]
+              }]
+            })
+          });
+
+          if (!storyRes.ok) {
+            const errData = await storyRes.json();
+            throw new Error(errData?.error?.message || `Story API error: ${storyRes.status}`);
+          }
+
+          const storyData = await storyRes.json();
+          const storyText = storyData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          if (!storyText) throw new Error("No story was returned. Please try again.");
+          setStory(storyText);
+
+        } catch (err) {
+          setError(`❌ ${err.message}`);
+        } finally {
+          setLoading(false);
+          setLoadingPhase('');
+        }
+      }, [prompt]);
+
+      // ── Text-to-Speech ────────────────────────────────────
+      const handleNarrate = useCallback(() => {
+        if (!story) return;
+        window.speechSynthesis.cancel();
+
+        const utter = new SpeechSynthesisUtterance(story.replace(/[*#🌟✨🎉🦄]/g, ''));
+        utter.rate = 0.88;
+        utter.pitch = 1.15;
+        utter.volume = 1;
+
+        // Pick a friendly voice
+        const voices = window.speechSynthesis.getVoices();
+        const preferred = voices.find(v =>
+          v.name.toLowerCase().includes('samantha') ||
+          v.name.toLowerCase().includes('karen') ||
+          v.name.toLowerCase().includes('google uk english female') ||
+          v.name.toLowerCase().includes('zira')
+        ) || voices.find(v => v.lang.startsWith('en')) || voices[0];
+        if (preferred) utter.voice = preferred;
+
+        utter.onstart = () => setSpeaking(true);
+        utter.onend = () => setSpeaking(false);
+        utter.onerror = () => setSpeaking(false);
+
+        utteranceRef.current = utter;
+        window.speechSynthesis.speak(utter);
+      }, [story]);
+
+      const handleStopNarration = useCallback(() => {
+        window.speechSynthesis.cancel();
+        setSpeaking(false);
+      }, []);
+
+      // ── Parse Story + Moral ───────────────────────────────
+      const parsedStory = (() => {
+        if (!story) return { body: '', moral: '' };
+        const moralIdx = story.lastIndexOf('🌟 Moral:');
+        if (moralIdx !== -1) {
+          return {
+            body: story.slice(0, moralIdx).trim(),
+            moral: story.slice(moralIdx).trim(),
+          };
+        }
+        // fallback — check for "Moral:" without emoji
+        const fallback = story.lastIndexOf('Moral:');
+        if (fallback !== -1) {
+          return {
+            body: story.slice(0, fallback).trim(),
+            moral: story.slice(fallback).trim(),
+          };
+        }
+        return { body: story, moral: '' };
+      })();
+
+      // ─────────────────────────────────────────────────────
+      return (
+        <div className="relative z-10 min-h-screen px-4 py-8 md:py-12">
+
+          {/* ── HEADER ── */}
+          <header className="text-center mb-10 select-none">
+            <div className="text-5xl md:text-6xl mb-2 animate-float inline-block">🚀</div>
+            <h1 className="font-fredoka text-5xl md:text-6xl lg:text-7xl text-transparent bg-clip-text
+                         bg-gradient-to-r from-purple-600 via-violet-500 to-blue-500
+                         page-title-glow tracking-wide">
+              Antigravity Tales
+            </h1>
+            <p className="mt-2 text-purple-500 font-nunito font-700 text-lg md:text-xl">
+              ✨ Magical AI stories — just for you!
+            </p>
+          </header>
+
+          {/* ── STORY PORTAL CARD ── */}
+          <div className="glassmorphism rounded-3xl shadow-2xl max-w-2xl mx-auto p-6 md:p-8 mb-8">
+            <h2 className="font-fredoka text-2xl text-purple-700 mb-1">🪄 Story Portal</h2>
+            <p className="text-purple-400 text-sm mb-4 font-semibold">
+              What magical adventure should we write today?
+            </p>
+
+            {/* Example prompt chips */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {EXAMPLE_PROMPTS.map(p => (
+                <button
+                  key={p}
+                  onClick={() => setPrompt(p)}
+                  className="text-xs font-bold px-3 py-1.5 rounded-full bg-purple-100 text-purple-600
+                           hover:bg-purple-200 transition-all duration-200 hover:scale-105 active:scale-95"
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+
+            {/* Textarea */}
+            <textarea
+              id="story-prompt"
+              value={prompt}
+              onChange={e => setPrompt(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' && e.ctrlKey) handleGenerate(); }}
+              placeholder="e.g. A tiny dragon who is afraid of fire…"
+              rows={3}
+              className="w-full rounded-2xl border-2 border-purple-200 bg-white/70 text-purple-800
+                       font-nunito font-semibold text-base px-4 py-3 resize-none
+                       placeholder-purple-300 transition-all duration-200"
+            />
+
+            {/* Error message */}
+            {error && (
+              <div className="mt-3 rounded-xl bg-red-50 border border-red-200 text-red-600
+                            font-semibold text-sm px-4 py-2 animate-pop">
+                {error}
+              </div>
+            )}
+
+            {/* Magic Generate Button */}
+            <button
+              id="generate-btn"
+              onClick={handleGenerate}
+              disabled={loading}
+              className="btn-magic mt-4 w-full py-4 rounded-2xl text-white font-fredoka text-2xl
+                       shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-3">
+                  <span className="inline-block w-5 h-5 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+                  {loadingPhase || 'Working magic…'}
+                </span>
+              ) : (
+                <span>✨ Magic Generate!</span>
+              )}
+            </button>
+            <p className="text-center text-purple-400 text-xs mt-2 font-semibold">
+              Tip: Press Ctrl + Enter to generate
+            </p>
+          </div>
+
+          {/* ── STORY OUTPUT ── */}
+          {story && !loading && (
+            <div className="max-w-2xl mx-auto story-card">
+
+              {/* Illustration */}
+              {imageSrc ? (
+                <div className="image-frame mb-6">
+                  <img
+                    src={imageSrc}
+                    alt="Story illustration"
+                    className="w-full object-cover"
+                    style={{ maxHeight: '380px', objectFit: 'cover' }}
+                  />
+                  <div className="absolute inset-0 rounded-3xl ring-2 ring-purple-300/40 pointer-events-none" />
+                </div>
+              ) : null}
+
+              {/* Story Card */}
+              <div className="glassmorphism rounded-3xl shadow-2xl p-6 md:p-8 mb-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-fredoka text-2xl text-purple-700">📖 Your Story</h2>
+
+                  {/* Narration controls */}
+                  <div className="flex gap-2">
+                    {!speaking ? (
+                      <button
+                        id="narrate-btn"
+                        onClick={handleNarrate}
+                        title="Read story aloud"
+                        className="btn-narrate text-white font-bold px-4 py-2 rounded-xl text-sm shadow-md"
+                      >
+                        🔊 Read Aloud
+                      </button>
+                    ) : (
+                      <button
+                        id="stop-btn"
+                        onClick={handleStopNarration}
+                        title="Stop narration"
+                        className="btn-stop text-white font-bold px-4 py-2 rounded-xl text-sm shadow-md animate-pulse"
+                      >
+                        ⏹ Stop
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Story body */}
+                <p className="prose-story">{parsedStory.body}</p>
+
+                {/* Moral box */}
+                {parsedStory.moral && (
+                  <div className="moral-box mt-4">
+                    <p className="font-bold text-amber-800 text-base leading-relaxed">
+                      {parsedStory.moral}
+                    </p>
+                  </div>
+                )}
+
+                {/* Speaking indicator */}
+                {speaking && (
+                  <div className="mt-4 flex items-center gap-2 text-pink-500 font-bold text-sm">
+                    <span>🎙️ Narrating…</span>
+                    <span className="loading-dot" />
+                    <span className="loading-dot" />
+                    <span className="loading-dot" />
+                  </div>
+                )}
+              </div>
+
+              {/* Image caption */}
+              {imagePrompt && (
+                <p className="text-center text-purple-400 text-xs font-semibold mb-8 px-4">
+                  🎨 Illustration: "{imagePrompt}"
+                </p>
+              )}
+
+              {/* Try again nudge */}
+              <div className="text-center mb-6">
+                <button
+                  onClick={() => { setPrompt(''); setStory(''); setImageSrc(''); setError(''); window.speechSynthesis.cancel(); setSpeaking(false); }}
+                  className="text-purple-400 hover:text-purple-600 font-bold text-sm underline transition-colors"
+                >
+                  ✏️ Write a new story
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ── FOOTER ── */}
+          <footer className="text-center text-purple-400 text-xs font-semibold mt-4 pb-6">
+            Built with 💜 by Antigravity&Claude sonnet 4.6· Powered by Chatgpt AI
+          </footer>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+
+</body>
+
+</html>
